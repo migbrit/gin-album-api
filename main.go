@@ -11,6 +11,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var db *sql.DB
+
 func main() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal("An error has occurred trying to get data about .env file -> ", err)
@@ -32,6 +34,8 @@ func main() {
 	}
 
 	defer db.Close()
+
+	album.InitializeDb(db)
 
 	router := gin.Default()
 	router.GET("/all-albums", album.GetAlbums)
