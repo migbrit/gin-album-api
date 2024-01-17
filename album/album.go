@@ -21,22 +21,30 @@ func InitializeDb(database *sql.DB) {
 }
 
 func PostAlbums(ginC *gin.Context) {
-	var newAlbum album
+	var newAlbums []album
 
-	if err := ginC.BindJSON(&newAlbum); err != nil {
+	if err := ginC.BindJSON(&newAlbums); err != nil {
 		ginC.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON data"})
 		return
 	}
 
-	result, err := db.Exec("INSERT INTO Albums (Title, Artist, Price) VALUES (?, ?, ?)", newAlbum.Title, newAlbum.Artist, newAlbum.Price)
-	if err != nil {
-		ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting new album into the database"})
-		return
+	for i, newAlbum := range newAlbums {
+		result, err := db.Exec("INSERT INTO Albums (Title, Artist, Price) VALUES (?, ?, ?)", newAlbum.Title, newAlbum.Artist, newAlbum.Price)
+		if err != nil {
+			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting new album into the database"})
+			return
+		}
+
+		lastInsertID, err := result.LastInsertId()
+		if err != nil {
+			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error getting last insert ID"})
+			return
+		}
+
+		newAlbums[i].ID = lastInsertID
 	}
 
-	newAlbum.ID, err = result.LastInsertId()
-
-	ginC.IndentedJSON(http.StatusCreated, newAlbum)
+	ginC.IndentedJSON(http.StatusCreated, newAlbums)
 }
 
 func GetAlbumByID(ginC *gin.Context) {
