@@ -2,6 +2,7 @@ package main
 
 import (
 	"gin-simple-api/infrastructure/database"
+	"gin-simple-api/infrastructure/http"
 	"gin-simple-api/infrastructure/http/album"
 	"log"
 
@@ -20,15 +21,14 @@ func main() {
 	if err != nil {
 		log.Panic("An error has occurred trying to connect to the database -> ", err)
 	}
-
 	defer db.Close()
 
 	album.InitializeDb(db)
 
 	router := gin.Default()
-	router.GET("/all-albums", album.GetAlbums)
-	router.GET("/albums", album.GetAlbumByID)
-	router.POST("/albums", album.PostAlbums)
 
-	router.Run("localhost:8080")
+	http.SetupRoutes(router)
+	if http.SetupWebServer(router); err != nil {
+		log.Panic("An error has occurred trying to setup the web server -> ", err)
+	}
 }
