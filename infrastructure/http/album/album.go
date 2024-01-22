@@ -2,6 +2,8 @@ package album
 
 import (
 	"database/sql"
+	"gin-simple-api/application/domain"
+	"gin-simple-api/application/repository"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,19 +11,12 @@ import (
 
 var db *sql.DB
 
-type album struct {
-	ID     int64   `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
-}
-
 func InitializeDb(database *sql.DB) {
 	db = database
 }
 
 func PostAlbums(ginC *gin.Context) {
-	var newAlbums []album
+	var newAlbums []domain.Album
 
 	if err := ginC.BindJSON(&newAlbums); err != nil {
 		ginC.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON data"})
@@ -29,7 +24,7 @@ func PostAlbums(ginC *gin.Context) {
 	}
 
 	for i, newAlbum := range newAlbums {
-		result, err := db.Exec("INSERT INTO Albums (Title, Artist, Price) VALUES (?, ?, ?)", newAlbum.Title, newAlbum.Artist, newAlbum.Price)
+		result, err := repository.CreateAlbum(newAlbum, db)
 		if err != nil {
 			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting new album into the database"})
 			return
@@ -55,9 +50,8 @@ func GetAlbumByID(ginC *gin.Context) {
 		return
 	}
 
-	println("id: ", id)
+	rows, err := repository.GetAlbumByID(id, db)
 
-	rows, err := db.Query("SELECT Id, Title, Artist, Price from Albums WHERE Id = ?", id)
 	if err != nil {
 		ginC.IndentedJSON(http.StatusNotFound, gin.H{"message:": "Album not found with the specified id."})
 	}
@@ -69,7 +63,7 @@ func GetAlbumByID(ginC *gin.Context) {
 		return
 	}
 
-	var a album
+	var a domain.Album
 	if err := rows.Scan(&a.ID, &a.Title, &a.Artist, &a.Price); err != nil {
 		ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error scanning albums on database"})
 		return
@@ -80,17 +74,17 @@ func GetAlbumByID(ginC *gin.Context) {
 }
 
 func GetAlbums(ginC *gin.Context) {
-	rows, err := db.Query("SELECT Id, Title, Artist, Price from Albums")
+	rows, err := repository.GetAlbums(db)
 	if err != nil {
 		ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message:": "Error trying to get albums data"})
 		return
 	}
 	defer rows.Close()
 
-	var fetchedAlbums []album
+	var fetchedAlbums []domain.Album
 
 	for rows.Next() {
-		var a album
+		var a domain.Album
 		if err := rows.Scan(&a.ID, &a.Title, &a.Artist, &a.Price); err != nil {
 			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message:": "Error scanning albums on database"})
 			return
