@@ -3,7 +3,8 @@ package main
 import (
 	"gin-simple-api/infrastructure/database"
 	"gin-simple-api/infrastructure/http"
-	"gin-simple-api/infrastructure/http/album"
+	"gin-simple-api/infrastructure/http/handler"
+	"gin-simple-api/infrastructure/middleware"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -23,9 +24,11 @@ func main() {
 	}
 	defer db.Close()
 
-	album.InitializeDb(db)
+	handler.InitializeDb(db)
 
 	router := gin.Default()
+
+	router.Use(middleware.AuthenticateMiddleware)
 
 	http.SetupRoutes(router)
 	if http.SetupWebServer(router); err != nil {

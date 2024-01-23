@@ -1,13 +1,12 @@
 package http
 
 import (
-	"gin-simple-api/infrastructure/http/album"
+	"gin-simple-api/infrastructure/http/route"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(router *gin.Engine) {
-	router.GET("/all-albums", album.GetAlbums)
-	router.GET("/albums", album.GetAlbumByID)
-	router.POST("/albums", album.PostAlbums)
+func SetupRoutes(ginEngine *gin.Engine) {
+	route.AuthRequestHandler(ginEngine)
+	route.AlbumRequestHandler(ginEngine)
 }

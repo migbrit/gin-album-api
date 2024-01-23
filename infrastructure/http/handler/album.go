@@ -1,4 +1,4 @@
-package album
+package handler
 
 import (
 	"database/sql"
@@ -9,10 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var db *sql.DB
+var Db *sql.DB
 
 func InitializeDb(database *sql.DB) {
-	db = database
+	Db = database
 }
 
 func PostAlbums(ginC *gin.Context) {
@@ -24,7 +24,7 @@ func PostAlbums(ginC *gin.Context) {
 	}
 
 	for i, newAlbum := range newAlbums {
-		result, err := repository.CreateAlbum(newAlbum, db)
+		result, err := repository.CreateAlbum(newAlbum, Db)
 		if err != nil {
 			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting new album into the database"})
 			return
@@ -50,7 +50,7 @@ func GetAlbumByID(ginC *gin.Context) {
 		return
 	}
 
-	rows, err := repository.GetAlbumByID(id, db)
+	rows, err := repository.GetAlbumByID(id, Db)
 
 	if err != nil {
 		ginC.IndentedJSON(http.StatusNotFound, gin.H{"message:": "Album not found with the specified id."})
@@ -74,7 +74,7 @@ func GetAlbumByID(ginC *gin.Context) {
 }
 
 func GetAlbums(ginC *gin.Context) {
-	rows, err := repository.GetAlbums(db)
+	rows, err := repository.GetAlbums(Db)
 	if err != nil {
 		ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message:": "Error trying to get albums data"})
 		return
