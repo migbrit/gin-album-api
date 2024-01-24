@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthRequestHandler(router *gin.Engine) {
-	router.POST("/auth", handler.GenerateJwtToken)
+func AuthRequestHandler(router *gin.RouterGroup) {
+
+	router.POST("/createToken", handler.GenerateJwtToken)
 }

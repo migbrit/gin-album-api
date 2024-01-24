@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"gin-simple-api/application/domain"
 	"gin-simple-api/application/repository"
 	"net/http"
@@ -52,8 +53,11 @@ func GetAlbumByID(ginC *gin.Context) {
 
 	rows, err := repository.GetAlbumByID(id, Db)
 
+	fmt.Println("err: ", err)
+
 	if err != nil {
 		ginC.IndentedJSON(http.StatusNotFound, gin.H{"message:": "Album not found with the specified id."})
+		return
 	}
 
 	defer rows.Close()

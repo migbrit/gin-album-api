@@ -7,6 +7,9 @@ import (
 )
 
 func SetupRoutes(ginEngine *gin.Engine) {
-	route.AuthRequestHandler(ginEngine)
-	route.AlbumRequestHandler(ginEngine)
+	authRouter := ginEngine.Group("/auth")
+	albumRouter := ginEngine.Group("/album")
+
+	route.AuthRequestHandler(authRouter)
+	route.AlbumRequestHandler(albumRouter)
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AlbumRequestHandler(router *gin.Engine) {
-	router.GET("/all-albums", handler.GetAlbums)
-	router.GET("/albums", handler.GetAlbumByID)
-	router.POST("/albums", handler.PostAlbums)
+func AlbumRequestHandler(router *gin.RouterGroup) {
+	router.GET("/getAll", handler.GetAlbums)
+	router.GET("/getById", handler.GetAlbumByID)
+	router.POST("/create", handler.PostAlbums)
 }

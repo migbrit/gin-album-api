@@ -11,8 +11,9 @@ import (
 )
 
 func GenerateJwtToken(ginC *gin.Context) {
+	expTime := time.Now().Add(time.Hour * 24).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp": expTime,
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
@@ -22,7 +23,7 @@ func GenerateJwtToken(ginC *gin.Context) {
 		return
 	}
 
-	ginC.IndentedJSON(http.StatusOK, gin.H{"Message": "Jwt token generated successfully.", "Token": tokenString})
+	ginC.IndentedJSON(http.StatusOK, gin.H{"Message": "Jwt token generated successfully.", "Token": tokenString, "ExpirationTime": expTime})
 	return
 }
 
