@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gin-simple-api/application/domain"
 	"gin-simple-api/application/repository"
+	"gin-simple-api/application/usecase"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,20 +25,12 @@ func PostAlbums(ginC *gin.Context) {
 		return
 	}
 
-	for i, newAlbum := range newAlbums {
-		result, err := repository.CreateAlbum(newAlbum, Db)
-		if err != nil {
-			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting new album into the database"})
-			return
-		}
+	newAlbums, err := usecase.CreateUsers(newAlbums, Db)
 
-		lastInsertID, err := result.LastInsertId()
-		if err != nil {
-			ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error getting last insert ID"})
-			return
-		}
-
-		newAlbums[i].ID = lastInsertID
+	if err != nil {
+		fmt.Println(err)
+		ginC.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Error inserting new album into the database"})
+		return
 	}
 
 	ginC.IndentedJSON(http.StatusCreated, newAlbums)
